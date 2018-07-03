@@ -1,7 +1,7 @@
 .include "nes.h"
 .include "rfk.h"
 .include "mbyt.h"
-.import chrWidths
+.import vwfChrWidths
 
 .segment "CODE"
 
@@ -129,7 +129,7 @@ forbidden_done:
   tax
   lda #8
   sec
-  sbc chrWidths-' ',x
+  sbc vwfChrWidths-' ',x
   lsr a
   clc
   adc tilex

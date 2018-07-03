@@ -1,40 +1,7 @@
-#!/usr/bin/env python
-from __future__ import with_statement, division, print_function
+#!/usr/bin/env python3
+from __future__ import with_statement, division, print_function, unicode_literals
 from collections import defaultdict
 import sys, heapq
-from vwfbuild import ca65_bytearray
-
-heapq_cheat_sheet = """
-A heap is a data structure that, like a search tree, allows
-O(log n) insertion of an element and removal of the smallest
-element.  Turning an array into a heap is faster than doing so
-for a search tree, but arbitrary removal isn't fast.  Heaps are
-useful for building Huffman trees and priority queues.
-
-Python heapq module quick reference:
-h = []
-    create a new heap
-heapq.heapify(h)
-    convert list to heap in place in linear time
-h.sort()
-    convert list to heap in place in n log n time
-heapq.heappush(h, el)
-    add item
-h[0]
-    peek smallest item
-el = heapq.heappop(h)
-    remove and return smallest item
-el2 = heapq.heappushpop(h, el)
-    add then remove smallest item (2.6+)
-el2 = heapq.heapreplace(h, el)
-    remove smallest item then add
-it = heapq.merge(a, b, ...)
-    merge multiple already sorted iterables
-ls = heapq.nsmallest(n, iterable, key=lambda x: x)
-ls = heapq.nlargest(n, iterable, key=lambda x: x)
-    find the n smallest or largest elements
-    use min() or max() for n=1, or sorted()[:n] for large n
-"""
 
 dte_problem_definition = """
 Byte pair encoding, dual tile encoding, or digram coding is a static
@@ -75,7 +42,14 @@ lipsum = """"But I must explain to you how all this mistaken idea of denouncing 
 On the other hand, we denounce with righteous indignation and dislike men who are so beguiled and demoralized by the charms of pleasure of the moment, so blinded by desire, that they cannot foresee the pain and trouble that are bound to ensue; and equal blame belongs to those who fail in their duty through weakness of will, which is the same as saying through shrinking from toil and pain. These cases are perfectly simple and easy to distinguish. In a free hour, when our power of choice is untrammelled and when nothing prevents our being able to do what we like best, every pleasure is to be welcomed and every pain avoided. But in certain circumstances and owing to the claims of duty or the obligations of business it will frequently occur that pleasures have to be repudiated and annoyances accepted. The wise man therefore always holds in these matters to this principle of selection: he rejects pleasures to secure other greater pleasures, or else he endures pains to avoid worse pains.
 --M. T. Cicero, "Extremes of Good and Evil", tr. H. Rackham"""
 
-MINFREQ = 4
+MINFREQ = 3
+
+def olcount(haystack, needle):
+    """Count times the 2-character needle appears in haystack, including overlaps."""
+    if needle[0] != needle[1]:
+        return haystack.count(needle)
+    return len([c0 for c0, c1 in zip(haystack[:-1], haystack[1:])
+                if c0 == c1 == needle[0]])
 
 def dte_count_changes(s, pairfrom, pairto):
     """Count changes to pair frequencies after replacing a given string."""
@@ -83,20 +57,29 @@ def dte_count_changes(s, pairfrom, pairto):
     # Assuming hi->$:
     # ghij -> gh -1, g$ +1, ij -1, $j + 1
     # ghihij -> gh -1, g$ -1, ih -1, $$ + 1, ij -1, $j +1
+    assert isinstance(s, bytes)
+    assert isinstance(pairfrom, bytes)
+    assert isinstance(pairto, int)
+    assert len(pairfrom) == 2
+    
     newpairfreqs = defaultdict(lambda: 0)
     i, ilen = 0, len(s)
     lastsym = None
+    revpairfrom = pairfrom[::-1]
     while i < ilen - 1:
         if s[i:i + 2] != pairfrom:
             lastsym = s[i]
             i += 1
             continue
+
+        # Handle the pair before the replacement
         if i > 0:
-            newpairfreqs[lastsym + pairto] += 1
-            newpairfreqs[lastsym + pairfrom[0]] -= 1
+            newpairfreqs[bytes([lastsym, pairto])] += 1
+            newpairfreqs[bytes([lastsym, pairfrom[0]])] -= 1
         lastsym = pairto
 
-        # eat up nonoverlapping pairs of a replacement two at a time
+        # Handle consecutive replaced pairs
+        # First count nonoverlapping pairs of the replacement
         # ghij -> g$j
         # ghihij -> g$$j
         # ghihihij -> g$$$j
@@ -107,26 +90,36 @@ def dte_count_changes(s, pairfrom, pairto):
             nextsym = s[i:i + 2]
             if nextsym != pairfrom:
                 break
+        # FIXME: This part needs to be replaced to handle
+        # overlapping semantics
         if nollen >= 2:
-            newpairfreqs[pairto + pairto] += nollen // 2
+            newpairfreqs[bytes([pairto, pairto])] += nollen - 1
+            newpairfreqs[revpairfrom] -= nollen - 1
 
         if nextsym:
-            newpairfreqs[pairto + nextsym[0]] += 1
-            newpairfreqs[pairfrom[1] + nextsym[0]] -= 1
+            newpairfreqs[bytes([pairto, nextsym[0]])] += 1
+            newpairfreqs[bytes([pairfrom[1], nextsym[0]])] -= 1
     return newpairfreqs
 
-def dte_newsymbol(lines, replacements, pairfreqs):
+def dte_newsymbol(lines, replacements, pairfreqs, compctrl=False, mincodeunit=128):
     """Find the biggest pair frequency and turn it into a new symbol."""
 
     # I don't know how to move elements around in the heap, so instead,
     # I'm recomputing the highest value every time.  When frequencies
     # are equal, prefer low numbered symbols for a less deep stack.
-    strpair, freq = min(pairfreqs.iteritems(), key=lambda x: (-x[1], x[0]))
+    if compctrl:
+        useful_items = pairfreqs.items()
+    else:
+        useful_items = ((k, v)
+                        for k, v in pairfreqs.items()
+                        if all(c >= 32 for c in k))
+    strpair, freq = min(useful_items, key=lambda x: (-x[1], x[0]))
     if freq < MINFREQ:
+##        print("Done. freq is", freq)
         return True
 
-    expected_freq = sum(line.count(strpair) for line in lines)
     try:
+        expected_freq = sum(olcount(line, strpair) for line in lines)
         assert freq == expected_freq
     except AssertionError:
         print("frequency of %s in pairfreqs: %d\nfrequency in inputdata: %d"
@@ -135,19 +128,81 @@ def dte_newsymbol(lines, replacements, pairfreqs):
         raise
 
     # Allocate new symbol
-    newsym = chr(128 + len(replacements))
+    newsym = mincodeunit + len(replacements)
     replacements.append(strpair)
 
     # Update pair frequencies
-    del pairfreqs[strpair]
     for line in lines:
-        for k, v in dte_count_changes(line, strpair, newsym).iteritems():
+        for k, v in dte_count_changes(line, strpair, newsym).items():
             if v:
                 pairfreqs[k] += v
+    del pairfreqs[strpair]
 
     return False
 
-def dte_uncompress(line, replacements):
+def dte_compress(lines, compctrl=False, checkfreqs=True, mincodeunit=128):
+    """Compress a set of byte strings with DTE.
+
+lines -- a list of byte strings to compress, where no code unit
+    is greater than mincodeunit
+compctrl -- if False, exclude control characters ('\x00'-'\x1F')
+from compression; if True, compress them as any other
+
+"""
+    # Initial frequency pair scan
+    # pairfreqs[c] represents the number of times the two-character
+    # sequence c occurs throughout lines
+    pairfreqs = defaultdict(lambda: 0)
+    for line in lines:
+        for i in range(len(line) - 1):
+            key = line[i:i + 2]
+            pairfreqs[key] += 1
+            # now we use overlapping matches: oooo is three of oo
+            # and we leave the compctrl exclusion for dte_newsymbol
+
+    replacements = []
+    lastmaxpairs = 0
+    done = False
+    while len(replacements) < 256 - mincodeunit and not done:
+        if checkfreqs:
+            inputdata = b'\xff'.join(lines)
+            numfailed = 0
+            for strpair, freq in pairfreqs.items():
+                expectfreq = olcount(inputdata, strpair)
+                if expectfreq != freq:
+                    print("Frequency pair scan problem: %s %d!=expected %d"
+                          % (repr(strpair), freq, expectfreq),
+                          file=sys.stderr)
+                    numfailed += 1
+            if numfailed > 0:
+                if replacements:
+                    print("Last replacement was %s with \\x%02x"
+                          % (repr(replacements[-1]),
+                          len(replacements) + mincodeunit - 1),
+                          file=sys.stderr)
+                assert False
+
+        curinputlen = sum(len(line) + 1 for line in lines)
+##        print("text:%5d bytes; dict:%4d bytes; pairs:%5d"
+##              % (curinputlen, 2 * len(replacements), len(pairfreqs)),
+##              file=sys.stderr)
+        done = dte_newsymbol(lines, replacements, pairfreqs,
+                             mincodeunit=mincodeunit)
+        if done:
+            break
+
+        newsymbol = bytes([len(replacements) + mincodeunit - 1])
+        for i in range(len(lines)):
+            lines[i] = lines[i].replace(replacements[-1], newsymbol)
+        if len(pairfreqs) >= lastmaxpairs * 2:
+            for i in list(pairfreqs):
+                if pairfreqs[i] <= 0:
+                    del pairfreqs[i]
+            lastmaxpairs = len(pairfreqs)
+
+    return lines, replacements, pairfreqs
+
+def dte_uncompress(line, replacements, mincodeunit=128):
     outbuf = bytearray()
     s = []
     maxstack = 0
@@ -155,21 +210,38 @@ def dte_uncompress(line, replacements):
         s.append(c)
         while s:
             maxstack = max(len(s), maxstack)
-            c = ord(s.pop())
-            if 0 <= c - 128 < len(replacements):
-                repl = replacements[c - 128]
+            c = s.pop()
+            if 0 <= c - mincodeunit < len(replacements):
+                repl = replacements[c - mincodeunit]
                 s.extend(reversed(repl))
 ##                print("%02x: %s" % (c, repr(repl)), file=sys.stderr)
 ##                print(repr(s), file=sys.stderr)
             else:
                 outbuf.append(c)
-    return str(outbuf), maxstack
+    return bytes(outbuf), maxstack
 
-def main(argv=None):
-##    inputdata = "The fat cat sat on the mat."
-##    inputdata = 'boooooobies booooooobies'
-##    inputdata = lipsum
+def dte_tests():
+    import cp144p
+    inputdatas = [
+        "The fat cat sat on the mat.",
+        'boooooobies booooooobies',
+        lipsum,
+    ]
+    with open("../src/helppages.txt", "r") as infp:
+        inputdatas.append(infp.read())
+    for text in inputdatas:
+        lines = [text.encode("cp144p")]
+        ctxt, replacements, pairfreqs = dte_compress(lines)
+        print("compressed %d chaacters to %d bytes and %d replacements"
+              % (len(text), len(ctxt[0]), len(replacements)))
+        dtxt, stkd = dte_uncompress(ctxt[0], replacements)
+        outtxt = dtxt.decode("cp144p")
+        print("decompressed to %d characters with %d stack depth"
+              % (len(dtxt), stkd))
+        assert outtxt == text
 
+# Compress for for robotfindskitten
+def nki_main(argv=None):
     # Load input files
     argv = argv or sys.argv
     lines = []
@@ -178,7 +250,9 @@ def main(argv=None):
             lines.extend(row.strip() for row in infp)
 
     # Remove blank lines and comments
-    lines = [row for row in lines if row and not row.startswith('#')]
+    lines = [row.encode('ascii')
+             for row in lines
+             if row and not row.startswith('#')]
 
     # Diagnostic for line length (RFK RFC forbids lines longer than 72)
     lgst = heapq.nlargest(10, lines, len)
@@ -190,41 +264,10 @@ def main(argv=None):
               % len(lgst[0]), file=sys.stderr)
         print(lgst[0], file=sys.stderr)
 
-    # Initial frequency pair scan
-    pairfreqs = defaultdict(lambda: 0)
-    for line in lines:
-        i, ilen = 0, len(line)
-        while i < ilen - 1:
-            key = line[i:i + 2]
-            if all(c >= ' ' for c in key):
-                pairfreqs[line[i:i + 2]] += 1
-            # nonoverlapping matches: ooo is one OO, not two
-            if i < ilen - 3 and all(line[i + 2] == k for k in key):
-                i += 1
-            i += 1
-
     oldinputlen = sum(len(line) + 1 for line in lines)
-    replacements = []
-    lastmaxpairs = 0
-    done = False
-    while len(replacements) < 128 and not done:
-##        curinputlen = sum(len(line) + 1 for line in lines)
-##        print("text:%5d bytes; dict:%4d bytes; pairs:%5d"
-##              % (curinputlen, 2 * len(replacements), len(pairfreqs)),
-##              file=sys.stderr)
-        done = dte_newsymbol(lines, replacements, pairfreqs)
-        newsymbol = chr(len(replacements) + 127)
-        for i in xrange(len(lines)):
-            lines[i] = lines[i].replace(replacements[-1], newsymbol)
-        if len(pairfreqs) >= lastmaxpairs * 2:
-            for i in list(pairfreqs):
-                if pairfreqs[i] <= 0:
-                    del pairfreqs[i]
-            lastmaxpairs = len(pairfreqs)
-##        for strpair, freq in pairfreqs.items():
-##            if inputdata.count(strpair) != freq:
-##                print("Frequency pair scan problem: %s %d!=%d"
-##                      % (strpair, freq, inputdata.count(strpair)))
+
+    lines, replacements, pairfreqs = dte_compress(lines)
+
     print("%d replacements; highest remaining frequency is %d"
           % (len(replacements), max(pairfreqs.values())), file=sys.stderr)
     finallen = len(replacements) * 2 + sum(len(line) + 1 for line in lines)
@@ -232,9 +275,10 @@ def main(argv=None):
     print("from %d to %d bytes with peak stack depth: %d"
           % (oldinputlen, finallen, stkd), file=sys.stderr)
 
-    replacements = ''.join(replacements)
+    replacements = b''.join(replacements)
     num_nkis = len(lines)
-    lines = ''.join(line + '\x00' for line in lines)
+    lines = b''.join(line + b'\x00' for line in lines)
+    from vwfbuild import ca65_bytearray
     outfp = sys.stdout
     outfp.write("""; Generated with dte.py; do not edit
 .export NUM_NKIS, nki_descriptions, nki_replacements
@@ -247,4 +291,6 @@ nki_replacements:
 """ % (num_nkis, ca65_bytearray(lines), ca65_bytearray(replacements)))
 
 if __name__=='__main__':
-    main()
+    nki_main()
+##    main([sys.argv[0], "../../rfk/src/fixed.nki", "../../rfk/src/default.nki"])
+##    dte_tests()

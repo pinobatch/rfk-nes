@@ -61,7 +61,7 @@ NUM_ITEMS = 48
 ; vwf_draw.s
 .global vwfPutTile, vwfPuts, vwfPuts0, vwfStrWidth, vwfStrWidth0
 .global clearLineImg, copyLineImg, lineImgBuf
-.global chrWidths
+.global vwfChrWidths
 
 ; nki.s
 .globalzp nkireq, nkidst

@@ -281,7 +281,7 @@ charloop:
   clc
   beq isspace
   tax
-  lda chrWidths,x
+  lda vwfChrWidths,x
   adc total_pixels
   sta total_pixels
   cmp #WRAP_WIDTH
@@ -299,7 +299,7 @@ nextchar:
 done:
   rts
 isspace:
-  lda chrWidths
+  lda vwfChrWidths
   adc total_pixels
   sta total_pixels
   sta last_space_pixels
