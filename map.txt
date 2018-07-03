@@ -1,0 +1,237 @@
+Modules list:
+-------------
+vwf7.o:
+    RODATA            Offs=000000  Size=0003A8  Align=00100  Fill=0000
+random.o:
+    CODE              Offs=000000  Size=0001F3  Align=00001  Fill=0000
+    BSS               Offs=000000  Size=000400  Align=00001  Fill=0000
+    ZEROPAGE          Offs=000000  Size=000066  Align=00001  Fill=0000
+main.o:
+    CODE              Offs=0001F3  Size=0001AF  Align=00001  Fill=0000
+    RODATA            Offs=0003A8  Size=000002  Align=00001  Fill=0000
+    ZEROPAGE          Offs=000066  Size=00000E  Align=00001  Fill=0000
+    INESHDR           Offs=000000  Size=000008  Align=00001  Fill=0000
+    VECTORS           Offs=000000  Size=000006  Align=00001  Fill=0000
+bg.o:
+    CODE              Offs=0003A2  Size=000147  Align=00001  Fill=0000
+    RODATA            Offs=0003AA  Size=00002A  Align=00001  Fill=0000
+title.o:
+    CODE              Offs=0004E9  Size=000143  Align=00001  Fill=0000
+    RODATA            Offs=0003D4  Size=00018D  Align=00001  Fill=0000
+nki.o:
+    CODE              Offs=00062C  Size=000131  Align=00001  Fill=0000
+    RODATA            Offs=000561  Size=000002  Align=00001  Fill=0000
+    BSS               Offs=000400  Size=000050  Align=00001  Fill=0000
+    ZEROPAGE          Offs=000074  Size=000006  Align=00001  Fill=0000
+nkidata.o:
+    NKIDATA           Offs=000000  Size=000AC1  Align=00001  Fill=0000
+vwf_draw.o:
+    CODE              Offs=00075D  Size=0001EB  Align=00001  Fill=0000
+    RODATA            Offs=000563  Size=000010  Align=00001  Fill=0000
+ppuclear.o:
+    CODE              Offs=000948  Size=000045  Align=00001  Fill=0000
+pads.o:
+    CODE              Offs=00098D  Size=00006D  Align=00001  Fill=0000
+bcd.o:
+    CODE              Offs=0009FA  Size=000035  Align=00001  Fill=0000
+
+
+Segment list:
+-------------
+Name                   Start     End    Size  Align
+----------------------------------------------------
+INESHDR               000000  000007  000008  00001
+ZEROPAGE              000010  000089  00007A  00001
+BSS                   000300  00074F  000450  00001
+RODATA                008000  008572  000573  00100
+CODE                  008580  008FAE  000A2F  00001
+NKIDATA               008FAF  009A6F  000AC1  00001
+VECTORS               00FFFA  00FFFF  000006  00001
+
+
+Exports list by name:
+---------------------
+CRCHI                     000011 RLZ    CRCLO                     000010 RLZ    
+NUM_NKIS                  00005F REZ    OAM                       000200 REA    
+__CODE_SIZE__             000A2F REA    __RODATA_SIZE__           000573 REA    
+autorepeat                008F59 RLA    bcd8bit                   008F7A RLA    
+chrData                   008000 RLA    chrWidths                 008340 RLA    
+clearLineImg              008CDD RLA    collision_check           00860F RLA    
+copyLineImg               008CF1 RLA    cur_keys                  000076 RLZ    
+cursor_x                  000034 RLZ    cursor_y                  000022 RLZ    
+das_keys                  00007A RLZ    das_timer                 00007C RLZ    
+display_instructions      008A69 RLA    found_kittens             00007E RLZ    
+item_color                000046 RLZ    item_shape                000036 RLZ    
+item_typehi               000066 RLZ    item_typelo               000056 RLZ    
+item_x                    000024 RLZ    item_y                    000012 RLZ    
+lineImgBuf                000100 REA    load_field_graphics       008922 RLA    
+load_item_shapes          0089B1 RLA    make_found_kittens_update 008A1B RLA    
+new_keys                  000078 RLZ    nki_descriptions          008FAF RLA    
+nki_replacements          009970 RLA    nkidisp_copy              008C8E RLA    
+nkidisp_init              008BF5 RLA    nkidisp_prepare           008C00 RLA    
+nkidst                    000085 RLZ    nkilru_buf                000300 RLA    
+nkilru_get                00871F RLA    nkilru_init               008674 RLA    
+nkilru_shuffle            0086BF RLA    nkireq                    000086 RLZ    
+nmis                      000080 RLZ    ppu_clear_nt              008EC8 RLA    
+ppu_clear_oam             008EEA RLA    ppu_screen_on             008EFA RLA    
+ppu_zero_nt               008BA6 RLA    randomize_item_locs       0085AA RLA    
+read_pads                 008F0D RLA    uctions1_txt              0083E4 RLA    
+vwfPutTile                008D44 RLA    vwfPuts                   008E7C RLA    
+
+
+
+Exports list by value:
+----------------------
+CRCLO                     000010 RLZ    CRCHI                     000011 RLZ    
+item_y                    000012 RLZ    cursor_y                  000022 RLZ    
+item_x                    000024 RLZ    cursor_x                  000034 RLZ    
+item_shape                000036 RLZ    item_color                000046 RLZ    
+item_typelo               000056 RLZ    NUM_NKIS                  00005F REZ    
+item_typehi               000066 RLZ    cur_keys                  000076 RLZ    
+new_keys                  000078 RLZ    das_keys                  00007A RLZ    
+das_timer                 00007C RLZ    found_kittens             00007E RLZ    
+nmis                      000080 RLZ    nkidst                    000085 RLZ    
+nkireq                    000086 RLZ    lineImgBuf                000100 REA    
+OAM                       000200 REA    nkilru_buf                000300 RLA    
+__RODATA_SIZE__           000573 REA    __CODE_SIZE__             000A2F REA    
+chrData                   008000 RLA    chrWidths                 008340 RLA    
+uctions1_txt              0083E4 RLA    randomize_item_locs       0085AA RLA    
+collision_check           00860F RLA    nkilru_init               008674 RLA    
+nkilru_shuffle            0086BF RLA    nkilru_get                00871F RLA    
+load_field_graphics       008922 RLA    load_item_shapes          0089B1 RLA    
+make_found_kittens_update 008A1B RLA    display_instructions      008A69 RLA    
+ppu_zero_nt               008BA6 RLA    nkidisp_init              008BF5 RLA    
+nkidisp_prepare           008C00 RLA    nkidisp_copy              008C8E RLA    
+clearLineImg              008CDD RLA    copyLineImg               008CF1 RLA    
+vwfPutTile                008D44 RLA    vwfPuts                   008E7C RLA    
+ppu_clear_nt              008EC8 RLA    ppu_clear_oam             008EEA RLA    
+ppu_screen_on             008EFA RLA    read_pads                 008F0D RLA    
+autorepeat                008F59 RLA    bcd8bit                   008F7A RLA    
+nki_descriptions          008FAF RLA    nki_replacements          009970 RLA    
+
+
+
+Imports list:
+-------------
+CRCHI (random.o):
+    title.o                   src/rfk.h(53)
+    main.o                    src/rfk.h(53)
+CRCLO (random.o):
+    title.o                   src/rfk.h(53)
+NUM_NKIS (nkidata.o):
+    title.o                   src/rfk.h(66)
+    random.o                  src/rfk.h(66)
+OAM (main.o):
+    ppuclear.o                src/ppuclear.s(12)
+__CODE_SIZE__ ([linker generated]):
+    title.o                   src/title.s(237)
+__RODATA_SIZE__ ([linker generated]):
+    title.o                   src/title.s(237)
+autorepeat (pads.o):
+    main.o                    src/rfk.h(42)
+bcd8bit (bcd.o):
+    bg.o                      src/rfk.h(70)
+chrData (vwf7.o):
+    vwf_draw.o                src/vwf_draw.s(22)
+chrWidths (vwf7.o):
+    vwf_draw.o                src/vwf_draw.s(22)
+    nki.o                     src/rfk.h(62)
+    bg.o                      src/rfk.h(62)
+clearLineImg (vwf_draw.o):
+    nki.o                     src/rfk.h(61)
+    title.o                   src/rfk.h(61)
+    bg.o                      src/rfk.h(61)
+collision_check (random.o):
+    main.o                    src/rfk.h(56)
+copyLineImg (vwf_draw.o):
+    nki.o                     src/rfk.h(61)
+    title.o                   src/rfk.h(61)
+    bg.o                      src/rfk.h(61)
+cur_keys (main.o):
+    pads.o                    src/pads.s(17)
+cursor_x (random.o):
+    title.o                   src/rfk.h(34)
+    main.o                    src/rfk.h(34)
+cursor_y (random.o):
+    title.o                   src/rfk.h(34)
+    main.o                    src/rfk.h(34)
+das_keys (main.o):
+    pads.o                    src/pads.s(109)
+das_timer (main.o):
+    pads.o                    src/pads.s(109)
+display_instructions (title.o):
+    main.o                    src/rfk.h(46)
+found_kittens (main.o):
+    bg.o                      src/rfk.h(34)
+item_color (random.o):
+    bg.o                      src/rfk.h(54)
+    main.o                    src/rfk.h(54)
+item_shape (random.o):
+    bg.o                      src/rfk.h(54)
+item_typehi (random.o):
+    nki.o                     src/rfk.h(55)
+item_typelo (random.o):
+    nki.o                     src/rfk.h(55)
+    title.o                   src/rfk.h(55)
+item_x (random.o):
+    main.o                    src/rfk.h(54)
+item_y (random.o):
+    main.o                    src/rfk.h(54)
+lineImgBuf (vwf_draw.o):
+    bg.o                      src/rfk.h(61)
+load_field_graphics (bg.o):
+    main.o                    src/rfk.h(37)
+load_item_shapes (bg.o):
+    main.o                    src/rfk.h(37)
+make_found_kittens_update (bg.o):
+    main.o                    src/rfk.h(38)
+new_keys (main.o):
+    pads.o                    src/pads.s(17)
+    title.o                   src/rfk.h(41)
+nki_descriptions (nkidata.o):
+    random.o                  src/rfk.h(66)
+nki_replacements (nkidata.o):
+    nki.o                     src/rfk.h(66)
+nkidisp_copy (nki.o):
+    main.o                    src/rfk.h(67)
+nkidisp_init (nki.o):
+    bg.o                      src/rfk.h(67)
+nkidisp_prepare (nki.o):
+    main.o                    src/rfk.h(67)
+nkidst (nki.o):
+    main.o                    src/rfk.h(65)
+nkilru_buf (random.o):
+    nki.o                     src/rfk.h(57)
+nkilru_get (random.o):
+    nki.o                     src/rfk.h(57)
+nkilru_init (random.o):
+    main.o                    src/rfk.h(57)
+nkilru_shuffle (random.o):
+    main.o                    src/rfk.h(57)
+nkireq (nki.o):
+    main.o                    src/rfk.h(65)
+nmis (main.o):
+    title.o                   src/rfk.h(33)
+ppu_clear_nt (ppuclear.o):
+    title.o                   src/rfk.h(49)
+ppu_clear_oam (ppuclear.o):
+    main.o                    src/rfk.h(49)
+ppu_screen_on (ppuclear.o):
+    title.o                   src/rfk.h(49)
+    main.o                    src/rfk.h(49)
+ppu_zero_nt (title.o):
+    bg.o                      src/rfk.h(49)
+randomize_item_locs (random.o):
+    main.o                    src/rfk.h(56)
+read_pads (pads.o):
+    title.o                   src/rfk.h(42)
+    main.o                    src/rfk.h(42)
+uctions1_txt (title.o):
+    bg.o                      src/rfk.h(46)
+vwfPutTile (vwf_draw.o):
+    bg.o                      src/rfk.h(60)
+vwfPuts (vwf_draw.o):
+    nki.o                     src/rfk.h(60)
+    title.o                   src/rfk.h(60)
+    bg.o                      src/rfk.h(60)
+
