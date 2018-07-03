@@ -12,8 +12,12 @@
 # These are used in the title of the NES program and the zip file.
 title = robotfindskitten
 
-# begins on 2014-07-07
-CURDAY := $(shell echo $$(( ($$(date -d 'now' '+%s') / 86400) - 16258 )))
+# I started this project on Sun 2014-07-07 (base: 16258)
+# but took a 100 day break to give forum.nesdev.com users
+# time to evaluate Scoth42's implementation.
+# After 100 days, I posted my own and corrected the
+# effective starting point to 16358.
+CURDAY := $(shell echo $$(( ($$(date -d 'now' '+%s') / 86400) - 16358 )))
 version = day$(CURDAY)
 
 # Assembly language files that make up the PRG ROM

@@ -1,6 +1,6 @@
 #
-# Linker script for Concentration Room (lite version)
-# Copyright 2010 Damian Yerrick
+# Linker script for robotfindskitten
+# Copyright 2010-2014 Damian Yerrick
 #
 # Copying and distribution of this file, with or without
 # modification, are permitted in any medium without royalty

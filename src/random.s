@@ -64,15 +64,22 @@ CRCHI: .res 1
 
 ; RFK randomization
 
+.segment "BSS"
+.assert NUM_NKIS <= 512, error, "too many NKI messages for the LRU buffer"
+.assert SMEAR3 < $80, error, "nkilru assumes 7-bit random depth"
+nkilru_buf: .res 1024
+
 .segment "ZEROPAGE"
 item_y: .res NUM_ITEMS  ; 0: kitten, 1-15: nki
 cursor_y: .res 2
 item_x: .res NUM_ITEMS
 cursor_x: .res 2
-item_shape: .res NUM_ITEMS
 item_color: .res NUM_ITEMS
-item_typelo: .res NUM_ITEMS
+item_typelo: .res NUM_ITEMS  ; needs to be in zp because 6502 lacks STY a,X
+
+.segment "BSS"
 item_typehi: .res NUM_ITEMS  ; bit 7 clear if unseen
+item_shape: .res NUM_ITEMS
 
 .segment "CODE"
 .proc randomize_item_locs
@@ -234,21 +241,20 @@ timesthree:
   rts
 .endproc
 
+; The number of descriptions that correspond to NKIs, as opposed
+; to the first two which are always kitten and robot respectively
+NUM_REAL_NKIS = (NUM_NKIS - 2)
+
 ; SMEAR3 is one less than the power of two between one-fourth and
-; one-half of NUM_NKIS.  This is used to pluck bits off the RNG
-; as an index into the LRU state.
+; one-half of NUM_REAL_NKIS.  This is used to pluck bits off the
+; RNG as an index into the LRU state.
 .if NKI_INORDER
   SMEAR3 = 0
 .else
-  SMEAR1 = (NUM_NKIS >> 2) | (NUM_NKIS >> 3)
+  SMEAR1 = (NUM_REAL_NKIS >> 2) | (NUM_REAL_NKIS >> 3)
   SMEAR2 = SMEAR1 | (SMEAR1 >> 2)
   SMEAR3 = SMEAR2 | (SMEAR2 >> 4)
 .endif
-
-.segment "BSS"
-.assert NUM_NKIS <= 512, error, "too many NKIs for the LRU buffer"
-.assert SMEAR3 < $80, error, "nkilru assumes 7-bit random depth"
-nkilru_buf: .res 1024
 
 .segment "CODE"
 ;;
@@ -319,7 +325,7 @@ dstptrhi = 3
 nkisleftlo = 4
 nkislefthi = 5
 rndchosen = 6
-  lday #(2 - NUM_NKIS)
+  lday #-NUM_REAL_NKIS
   stay nkisleftlo
   lday #(nkilru_buf + 4)
   stay srcptrlo
@@ -343,17 +349,17 @@ loop:
   adc #0  ; this clears the carry so long as y wasn't $FF (and it wasn't)
   sta dstptrhi
 
-  ; if (i - NUM_NKIS) + r >= 0, subtract NUM_NKIS - 2
+  ; if (i - NUM_NKIS) + r >= 0, subtract NUM_REAL_NKIS
   lda rndchosen
   adc nkisleftlo
   lda #0
   adc nkislefthi
   bcc not_wraparound
   lda dstptrlo
-  sbc #<((NUM_NKIS - 2) << 1)
+  sbc #<(NUM_REAL_NKIS * 2)
   sta dstptrlo
   lda dstptrhi
-  sbc #>((NUM_NKIS - 2) << 1)
+  sbc #>(NUM_REAL_NKIS * 2)
   sta dstptrhi
 not_wraparound:
 
@@ -422,10 +428,10 @@ nkislefthi = 7
 :
   ; calculate how many bytes to copy: nkisleft = -n
   lda nkisleftlo
-  adc #<((3 - NUM_NKIS) * 2)
+  adc #<((1 - NUM_REAL_NKIS) * 2)
   sta nkisleftlo
   tya
-  adc #>((3 - NUM_NKIS) * 2)
+  adc #>((1 - NUM_REAL_NKIS) * 2)
   sta nkislefthi
 
   ; Save the chosen NKI description's address to put it back

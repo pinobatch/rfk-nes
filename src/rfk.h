@@ -49,10 +49,12 @@ LF = 10
 .global ppu_clear_nt, ppu_zero_nt, ppu_clear_oam, ppu_screen_on
 
 ; random.s
-NUM_ITEMS = 16
+; one kitten plus however many other items
+; this counts kitten but not robots
+NUM_ITEMS = 48
 .globalzp CRCHI, CRCLO
-.globalzp item_x, item_y, item_color, item_shape
-.globalzp item_typelo, item_typehi
+.globalzp item_x, item_y, item_color, item_shape,  item_typelo
+.global item_typehi
 .global rand_crc, randomize_item_locs, collision_check
 .global nkilru_init, nkilru_get, nkilru_shuffle, nkilru_buf
 

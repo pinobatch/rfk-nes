@@ -51,7 +51,7 @@ tileAddr = $06
 ; in:  AAYY = destination address in VRAM
 ; trash: $00
 .proc copyLineImg
-ppuaddr_lo = 0
+ppuaddr_lo = tileAddr
   tax
   sty ppuaddr_lo
   lda #VBLANK_NMI|VRAM_DOWN

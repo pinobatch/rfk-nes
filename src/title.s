@@ -237,8 +237,10 @@ tileloop:
 .import __RODATA_LOAD__, __RODATA_SIZE__, __CODE_LOAD__, __CODE_SIZE__
 ROMSIZE = __CODE_SIZE__ + __RODATA_SIZE__ + 6
 ROMPCT = (1000 * ROMSIZE + 16384) / 32768
-; started this project on Sun 2014-07-07
-BUILDDAY = (.TIME / 86400) - 16258
+; I started this project on Sun 2014-07-07 (base: 16258)
+; but took a 100 day break to give forum.nesdev.com users
+; time to evaluate Scoth42's implementation.
+BUILDDAY = (.TIME / 86400) - 16358
 instructions_palette:
   mbyt "FFFFFFFF FFFFFFFF FF10FF10 FFFF1010"
 .if 0

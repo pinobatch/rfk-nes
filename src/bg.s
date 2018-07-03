@@ -93,8 +93,8 @@ tilenum = 6
 tilex = 7
   lda #2
   sta bitplane
-planeloop:
   jsr clearLineImg
+planeloop:
   ldy #NUM_ITEMS-1
 loop:
   lda item_color,y
@@ -103,26 +103,37 @@ loop:
   tya
   asl a
   asl a
+  asl a
+  and #$7F  ; each line is 128 pixels long
   sta tilex
 
   ; Convert item shape ID to a glyph number
   lda item_shape,y
   clc
-  adc #'!'
-  cmp #'#'  ; Skip robot glyph
+  adc #'!'  ; range: $21-$80
+  
+  ; Replace forbidden characters (too similar, too small) with
+  ; other characters from $81 on up
+  ldx #num_forbidden_chars
+forbidden_check:
+  cmp forbidden_chars-1,x
   bne :+
-  lda #$81
+  txa
+  ora #$80
+  bmi forbidden_done
 :
-  cmp #'|'  ; vertical bar looks too much like capital i
-  bne :+
-  lda #$84
-:
-  ; If the pen advance of this glyph is less than or equal to 4,
-  ; move it a pixel to the right to center it better
+  dex
+  bne forbidden_check
+forbidden_done:
+  ; Center the glyph in the 8x8 cell based on its pen advance
   tax
-  lda #4
-  cmp chrWidths-' ',x
-  rol tilex
+  lda #8
+  sec
+  sbc chrWidths-' ',x
+  lsr a
+  clc
+  adc tilex
+  sta tilex
 
   ; Retrieve the glyph
   txa
@@ -131,18 +142,30 @@ loop:
   jsr vwfPutTile
   ldy ysave
 dontdraw:
-  dey
-  bpl loop
+  tya
+  and #$0F
+  bne dontcopy
+  tya
+  pha
 
-  ; Send the chosen glyphs to CHR RAM tiles $10-$1F
-  ; plane 2 at $08, plane 01 at $00
-  lda #$01
+  ; Send the chosen glyphs starting at CHR RAM tile $10
+  lsr a
+  lsr a
+  lsr a
+  lsr a
+  adc #$01  ; first row at $010x, second at $020x
   ldy bitplane
   dey
   beq :+
-  ldy #$08
+  ldy #$08  ; first plane at $xxx0, second at $xxx8
 :
   jsr copyLineImg
+  jsr clearLineImg
+  pla
+  tay
+dontcopy:
+  dey
+  bpl loop
   lsr bitplane
   bne planeloop 
   
@@ -151,13 +174,23 @@ dontdraw:
   lday #$0000
   jsr copyLineImg
   lda #'#'  ; heart glyph in tile $0F
-  ldx #$0F << 3
+  ldx #($0F << 3) + 1
   jsr vwfPutTile
   lda #$82  ; heart glyph in tile $0E
   ldx #$0E << 3
   jsr vwfPutTile
   lday #$0008
   jmp copyLineImg
+.pushseg
+.segment "RODATA"
+forbidden_chars:  ; These get reassigned to sequential glyphs $81+
+  .byte '#'  ; skip robot glyph
+  .byte ','  ; too similar to apostrophe
+  .byte '.'  ; too small to see in some cases
+  .byte '|'  ; too similar to capital I
+  .byte '_'  ; too similar to hyphen
+num_forbidden_chars = * - forbidden_chars
+.popseg
 .endproc
 
 ;;

@@ -4,7 +4,7 @@
 ; BPE (Byte Pair Encoding) or DTE (Digram Tree Encoding)
 ; Code units $00-$7F map to literal ASCII characters.
 ; Code units $80-$FF map to pairs of code units.  The second
-; is stacked, and the first is interpreted as above.
+; is added to a stack, and the first is interpreted as above.
 
 BPEBUFLEN = 80
 NKI_MAXLINES = 3
@@ -133,7 +133,10 @@ nkicur: .res 2
 .proc nkidisp_prepare
   lda nkidst
   bmi is_idle
-  and #$03
+  cmp #$0D  ; $0D: finished drawing "2 kittens found" line
+            ; ($4D means P2's NKI is decompressed and word wrapped)
+  beq lastlinedone
+  and #$03  ; $0C, $10: Finished drawing 3 lines of text
   beq lastlinedone
   
   ; A request is in progress. Draw it one line at a time.

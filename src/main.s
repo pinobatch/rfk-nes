@@ -183,8 +183,11 @@ try_writeback:
   sta cursor_y,y
   rts
 no_writeback:
-  stx nkireq,y
+  ; X bit 7 set: robot touched wall
+  ; nkireq bit 7 set: Erase NKI.
   cpx #0
+  bmi no_winner  ; don't erase nki
+  stx nkireq,y
   bne no_winner
   sty winner
 notUp:
@@ -278,7 +281,7 @@ loop:
   tya
   cmp #NUM_ITEMS
   bcc :+
-  lda #$FE
+  lda #$FE  ; robot is item -1, but carry is set so it'll add 1 extra
 :
   adc #$10
   sta OAM+1,x

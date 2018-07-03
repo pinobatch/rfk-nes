@@ -1,5 +1,5 @@
 ;
-; Binary to decimal conversion for 8-bit and 16-bit numbers
+; Binary to decimal conversion for 8-bit numbers
 ; Copyright 2012 Damian Yerrick
 ;
 ; Copying and distribution of this file, with or without
