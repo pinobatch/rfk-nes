@@ -1,5 +1,5 @@
-.include "nes.h"
-.include "rfk.h"
+.include "nes.inc"
+.include "rfk.inc"
 
 OAM = $0200
 

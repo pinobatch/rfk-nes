@@ -1,6 +1,6 @@
-.include "nes.h"
-.include "rfk.h"
-.include "mbyt.h"
+.include "nes.inc"
+.include "rfk.inc"
+.include "mbyt.inc"
 
 NUM_PAGES = 5
 .segment "CODE"

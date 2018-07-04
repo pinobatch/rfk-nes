@@ -1,5 +1,5 @@
-.include "rfk.h"
-.include "mbyt.h"
+.include "rfk.inc"
+.include "mbyt.inc"
 
 ; BPE (Byte Pair Encoding) or DTE (Digram Tree Encoding)
 ; Code units $00-$7F map to literal ASCII characters.

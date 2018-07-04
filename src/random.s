@@ -7,7 +7,7 @@
 ; the copyright notice and this notice are preserved in all source
 ; code copies.  This file is offered as-is, without any warranty.
 ;
-.include "rfk.h"
+.include "rfk.inc"
 
 ; 0: Deal from the top third or so of the LRU deck (normal)
 ; >0: Cycle through the LRU deck (for testing)

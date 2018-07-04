@@ -1,6 +1,6 @@
-.include "nes.h"
-.include "rfk.h"
-.include "mbyt.h"
+.include "nes.inc"
+.include "rfk.inc"
+.include "mbyt.inc"
 .import vwfChrWidths
 
 .segment "CODE"
