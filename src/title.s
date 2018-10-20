@@ -2,7 +2,6 @@
 .include "rfk.inc"
 .include "mbyt.inc"
 
-NUM_PAGES = 5
 .segment "CODE"
 
 .proc display_instructions
@@ -249,7 +248,7 @@ titleguy_pb53:
   .incbin "obj/nes/titleguy.chr.pb53"
 .endif
 uctions1_txt:
-  .byte .sprintf("robotfindskitten 0.%d.", BUILDDAY)
+  .byte .sprintf("robotfindskitten %d.%d.", MAJOR_VERSION, MINOR_VERSION)
   .byte '0'|<(NUM_NKIS / 100 .MOD 10)
   .byte '0'|<(NUM_NKIS / 10 .MOD 10)
   .byte '0'|<(NUM_NKIS .MOD 10),LF

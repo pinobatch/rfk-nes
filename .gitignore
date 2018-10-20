@@ -9,6 +9,8 @@
 /map.txt
 __pycache__/
 *.pyc
+/robotfindskitten-*.zip
+/robotfindskitten.dbg
 
 # this is NES homebrew, not DSiWare
 *.DS_Store

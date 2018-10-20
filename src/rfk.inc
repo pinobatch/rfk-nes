@@ -53,8 +53,8 @@ LF = 10
 ; this counts kitten but not robots
 NUM_ITEMS = 48
 .globalzp CRCHI, CRCLO
-.globalzp item_x, item_y, item_color, item_shape,  item_typelo
-.global item_typehi
+.globalzp item_x, item_y, item_color, item_typelo
+.global item_typehi, item_shape
 .global rand_crc, randomize_item_locs, collision_check
 .global nkilru_init, nkilru_get, nkilru_shuffle, nkilru_buf
 

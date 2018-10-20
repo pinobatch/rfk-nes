@@ -1,0 +1,14 @@
+0.10
+* Update for recent coding standards (.inc not .h, Python 3, recent
+  ca65, etc.)
+* Update DTE compression and VWF drawing from 240p Test Suite
+* Add instructions to README
+* Add provenance of most NKIs in comments
+* No more zip bombing
+
+0.09
+* Expand to 48 NKIs per screen
+
+0.05
+* initial release at https://forums.nesdev.com/viewtopic.php?f=22&t=11943
+* 16 NKIs per screen
