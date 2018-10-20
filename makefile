@@ -92,7 +92,7 @@ clean:
 # changed.  It won't see changes to docs or tools, but usually when
 # docs changes, README also changes, and when tools changes, the
 # makefile changes.
-$(title)-$(version).zip: zip.in $(title).nes README.txt $(objdir)/index.txt
+$(title)-$(version).zip: zip.in $(title).nes README.md CHANGES.txt $(objdir)/index.txt
 	$(PY) tools/zipup.py $< $(title)-$(version) -o $@
 
 # Build zip.in from the list of files in the Git tree
