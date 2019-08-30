@@ -28,6 +28,8 @@ minor_version := 10
 
 version := $(major_version).$(minor_version)
 
+nkifiles = fixed default
+
 # Assembly language files that make up the PRG ROM
 align_sensitive_modules := vwf7 random
 game_modules := \
@@ -48,15 +50,9 @@ imgdir = tilesets
 EMU := fceux
 # other options for EMU are start (Windows) or gnome-open (GNOME)
 
-# Occasionally, you need to make "build tools", or programs that run
-# on a PC that convert, compress, or otherwise translate PC data
-# files into the format that the NES program expects.  Some people
-# write their build tools in C or C++; others prefer to write them in
-# Perl, PHP, or Python.  This program doesn't use any C build tools,
-# but if yours does, it might include definitions of variables that
-# Make uses to call a C compiler.
-CC = gcc
-CFLAGS = -std=gnu99 -Wall -DNDEBUG -O
+# The by Johnathan Roatch is written in C.  Compile it.
+CC := gcc
+CFLAGS := -std=gnu99 -Wall -Wextra -DNDEBUG -Os
 
 # Windows needs .exe suffixed to the names of executables; UNIX does
 # not.  Also the Windows Python installer puts py.exe in the path,
@@ -83,7 +79,9 @@ dist: zip
 zip: $(title)-$(version).zip
 clean:
 	-rm $(objdir)/*.o $(objdir)/*.chr $(objdir)/*.s
-	-rm map.txt
+	-rm map.txt tools/dte$(DOTEXE)
+ctools:
+	tools/dte$(DOTEXE)
 
 # Rule to create or update the distribution zipfile by adding all
 # files listed in zip.in.  Actually the zipfile depends on every
@@ -107,7 +105,7 @@ $(objdir)/index.txt: makefile
 
 # Rules for PRG ROM
 
-objlistntsc = $(foreach o,$(objlist),$(objdir)/$(o).o)
+objlistntsc := $(foreach o,$(objlist),$(objdir)/$(o).o)
 
 map.txt $(title).nes: rfk.x $(objlistntsc)
 	$(LD65) -o $(title).nes -m map.txt --dbgfile $(title).dbg -C $^
@@ -124,17 +122,17 @@ $(objdir)/%.o: $(objdir)/%.s
 # it also depends on the version number
 $(objdir)/title.o: $(srcdir)/uctions1.txt makefile
 
-# Generate lookup tables
-
-$(objdir)/ntscPeriods.s: tools/mktables.py
-	$< period $@
-
 # Graphics conversion
 
 $(objdir)/%.s: tools/vwfbuild.py tilesets/%.png
-	$^ $@
+	$(PY) $^ $@
 
 # NKI conversion
 
-$(objdir)/nkidata.s: tools/dte.py $(srcdir)/fixed.nki $(srcdir)/default.nki
-	$^ > $@
+nkipaths := $(foreach o,$(nkifiles),$(srcdir)/$(o).nki)
+
+$(objdir)/nkidata.s: tools/dtefe.py tools/dte$(DOTEXE) $(nkipaths)
+	$(PY) $< $(nkipaths) > $@
+
+tools/dte$(DOTEXE): tools/dte.c
+	$(CC) -static $(CFLAGS) -o $@ $^

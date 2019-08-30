@@ -254,7 +254,8 @@ def nki_main(argv=None):
              for row in lines
              if row and not row.startswith('#')]
 
-    # Diagnostic for line length (RFK RFC forbids lines longer than 72)
+    # Diagnostic for line length.  RFK RFC forbids lines longer than
+    # 72 characters, and longer lines may wrap to more than 3 lines.
     lgst = heapq.nlargest(10, lines, len)
     if len(lgst[0]) > 72:
         print("Some NKIs are too long (more than 72 characters):", file=sys.stderr)

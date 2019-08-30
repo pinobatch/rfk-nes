@@ -11,6 +11,8 @@ __pycache__/
 *.pyc
 /robotfindskitten-*.zip
 /robotfindskitten.dbg
+/tools/dte
+/tools/dte.exe
 
 # this is NES homebrew, not DSiWare
 *.DS_Store
