@@ -28,7 +28,7 @@ minor_version := 10
 
 version := $(major_version).$(minor_version)
 
-nkifiles = fixed default
+nkifiles = fixed default drugs
 
 # Assembly language files that make up the PRG ROM
 align_sensitive_modules := vwf7 random
