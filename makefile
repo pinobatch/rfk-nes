@@ -131,8 +131,9 @@ $(objdir)/%.s: tools/vwfbuild.py tilesets/%.png
 
 nkipaths := $(foreach o,$(nkifiles),$(srcdir)/$(o).nki)
 
-$(objdir)/nkidata.s: tools/dtefe.py tools/dte$(DOTEXE) $(nkipaths)
-	$(PY) $< $(nkipaths) > $@
+$(objdir)/nkidata.s: tools/nkiconvert.py tilesets/vwf7.png tools/dte$(DOTEXE) $(nkipaths)
+	$(PY) $< --wrap-width 112 --wrap-font tilesets/vwf7.png \
+	$(nkipaths) > $@
 
 tools/dte$(DOTEXE): tools/dte.c
 	$(CC) -static $(CFLAGS) -o $@ $^

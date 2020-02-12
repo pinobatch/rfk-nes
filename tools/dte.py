@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import with_statement, division, print_function, unicode_literals
 from collections import defaultdict
-import sys, heapq
+import sys
 
 dte_problem_definition = """
 Byte pair encoding, dual tile encoding, or digram coding is a static
@@ -240,58 +240,16 @@ def dte_tests():
               % (len(dtxt), stkd))
         assert outtxt == text
 
-# Compress for for robotfindskitten
-def nki_main(argv=None):
-    # Load input files
+
+def main(argv=None):
     argv = argv or sys.argv
-    lines = []
-    for filename in argv[1:]:
-        with open(filename, 'rU') as infp:
-            lines.extend(row.strip() for row in infp)
-
-    # Remove blank lines and comments
-    lines = [row.encode('ascii')
-             for row in lines
-             if row and not row.startswith('#')]
-
-    # Diagnostic for line length.  RFK RFC forbids lines longer than
-    # 72 characters, and longer lines may wrap to more than 3 lines.
-    lgst = heapq.nlargest(10, lines, len)
-    if len(lgst[0]) > 72:
-        print("Some NKIs are too long (more than 72 characters):", file=sys.stderr)
-        print("\n".join(line for line in lgst if len(line) > 72), file=sys.stderr)
-    else:
-        print("Longest NKI is OK at %d characters. Don't let it get any longer."
-              % len(lgst[0]), file=sys.stderr)
-        print(lgst[0], file=sys.stderr)
-
-    oldinputlen = sum(len(line) + 1 for line in lines)
-
-    lines, replacements, pairfreqs = dte_compress(lines)
-
-    print("%d replacements; highest remaining frequency is %d"
-          % (len(replacements), max(pairfreqs.values())), file=sys.stderr)
-    finallen = len(replacements) * 2 + sum(len(line) + 1 for line in lines)
-    stkd = max(dte_uncompress(line, replacements)[1] for line in lines)
-    print("from %d to %d bytes with peak stack depth: %d"
-          % (oldinputlen, finallen, stkd), file=sys.stderr)
-
-    replacements = b''.join(replacements)
-    num_nkis = len(lines)
-    lines = b''.join(line + b'\x00' for line in lines)
-    from vwfbuild import ca65_bytearray
-    outfp = sys.stdout
-    outfp.write("""; Generated with dte.py; do not edit
-.export NUM_NKIS, nki_descriptions, nki_replacements
-NUM_NKIS = %d
-.segment "NKIDATA"
-nki_descriptions:
-%s
-nki_replacements:
-%s
-""" % (num_nkis, ca65_bytearray(lines), ca65_bytearray(replacements)))
+    with open(argv[1], "rb") as infp:
+        lines = [x.rstrip(b"\r\n") for x in infp]
+    clines, repls = dte_compress(lines)[:2]
+    print(clines)
+    print(repls)
 
 if __name__=='__main__':
-    nki_main()
-##    main([sys.argv[0], "../../rfk/src/fixed.nki", "../../rfk/src/default.nki"])
+    main()
+##    main([sys.argv[0], "../../rfk/src/fixed.nki"])
 ##    dte_tests()

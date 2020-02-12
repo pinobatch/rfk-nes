@@ -265,9 +265,9 @@ WRAP_WIDTH = 112
 ;;
 ; Finds the most text that will fit in 112 pixels.
 .proc word_wrap
-total_pixels = 0  ; pen position
-last_space_offset = 1  ; '\n' will be inserted at this offset
-last_space_pixels = 2  ; total_pixels after inserting last space
+total_pixels      = $00  ; pen position
+last_space_offset = $01  ; '\n' will be inserted at this offset
+last_space_pixels = $02  ; total_pixels after inserting last space
 
   ldy #0
   sty total_pixels
@@ -286,7 +286,7 @@ charloop:
   sta total_pixels
   cmp #WRAP_WIDTH
   bcc nextchar
-  sec 
+;  sec  ; set by cmp-bcc
   sbc last_space_pixels
   sta total_pixels
   ldx last_space_offset

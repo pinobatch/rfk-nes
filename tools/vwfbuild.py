@@ -1,25 +1,40 @@
 #!/usr/bin/env python3
 from __future__ import with_statement
 from PIL import Image
-import array
 
 def ca65_bytearray(s):
     s = ['  .byte ' + ','.join("%3d" % ch for ch in s[i:i + 16])
          for i in range(0, len(s), 16)]
     return '\n'.join(s)
 
-def vwfcvt(filename, tileHt=8):
-    im = Image.open(filename)
+def vwfcvt(filename, tileHt=8, tileWid=8):
+    """Load a variable-width font from an image.
+
+filename -- a PIL.Image.Image instance or a pathlike to a file
+    accepted by PIL.Image.open(), where color 0 is transparent and
+    the highest index is space between glyph advance boxes
+tileHt -- height of each glyph bounding box
+tileWid -- width of each glyph bounding box; though only the leftmost
+    8 pixels are kept, a bold 'W' for example may advance the pen by
+    9 pixels (with the last all white)
+
+Return a 2-tuple (sequence of widths, byteslike tiledata).
+"""
+
+    if isinstance(filename, Image.Image):
+        im = filename
+    else:
+        im = Image.open(filename)
     pixels = im.load()
     (w, h) = im.size
     (xparentColor, sepColor) = im.getextrema()
     widths = bytearray()
     tiledata = bytearray()
     for yt in range(0, h, tileHt):
-        for xt in range(0, w, 8):
+        for xt in range(0, w, tileWid):
             # step 1: find the glyph width
             tilew = 8
-            for x in range(8):
+            for x in range(tileWid):
                 if pixels[x + xt, yt] == sepColor:
                     tilew = x
                     break
