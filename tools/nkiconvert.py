@@ -60,7 +60,7 @@ def nki_main(argv=None):
     args = parse_argv(argv or sys.argv)
     lines = []
     for filename in args.nkis:
-        with open(filename, 'rU') as infp:
+        with open(filename, 'r') as infp:
             lines.extend(row.strip() for row in infp)
 
     # Remove blank lines and comments
